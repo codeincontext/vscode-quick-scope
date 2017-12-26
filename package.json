@@ -2,8 +2,9 @@
   "name": "vscode-quick-scope",
   "displayName": "Vim quick-scope",
   "description": "Highlights a unique character in each word so you can jump there with `f` and similar. Who needs EasyMotion?",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "skattyadz",
+  "preview": true,
   "engines": {
     "vscode": "^1.19.0"
   },
