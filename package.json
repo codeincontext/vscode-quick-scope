@@ -1,0 +1,27 @@
+{
+  "name": "vscode-quick-scope",
+  "displayName": "Vim quick-scope",
+  "description": "Highlights a unique character in each word so you can jump there with `f` and similar. Who needs EasyMotion?",
+  "version": "0.1.0",
+  "publisher": "skattyadz",
+  "engines": {
+    "vscode": "^1.19.0"
+  },
+  "categories": ["Other"],
+  "keywords": ["vim", "quick-scope", "quick", "scope", "jump", "EasyMotion"],
+  "activationEvents": ["*"],
+  "main": "./out/extension",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "typescript": "^2.6.1",
+    "vscode": "^1.1.6",
+    "@types/node": "^7.0.43",
+    "@types/mocha": "^2.2.42"
+  }
+}
