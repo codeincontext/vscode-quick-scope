@@ -57,38 +57,40 @@ export function activate(context: vscode.ExtensionContext) {
       .split("")
       .reverse()
       .join("");
-    const beforeHighlights = getHighlights(beforeTextReversed);
-    beforeHighlights.primary = beforeHighlights.primary.map(
-      index => cursorColumn - index - 1
-    );
-    beforeHighlights.secondary = beforeHighlights.secondary.map(
-      index => cursorColumn - index - 1
+    const beforeHighlights = getHighlights(beforeTextReversed, "reverse").map(
+      h => ({ ...h, position: cursorColumn - h.position - 1 })
     );
 
     const afterText = line.slice(cursorPosition.character + 1);
-    const afterHighlights = getHighlights(afterText);
-    afterHighlights.primary = afterHighlights.primary.map(
-      index => cursorColumn + index + 1
-    );
-    afterHighlights.secondary = afterHighlights.secondary.map(
-      index => cursorColumn + index + 1
-    );
+    const afterHighlights = getHighlights(afterText, "forward").map(h => ({
+      ...h,
+      position: cursorColumn + h.position + 1
+    }));
 
     setDecorations(
-      [...beforeHighlights.primary, ...afterHighlights.primary],
+      [...beforeHighlights, ...afterHighlights].filter(
+        h => h.type === "primary"
+      ),
       primaryDecorationType,
       cursorPosition.line
     );
     setDecorations(
-      [...beforeHighlights.secondary, ...afterHighlights.secondary],
+      [...beforeHighlights, ...afterHighlights].filter(
+        h => h.type === "secondary"
+      ),
       secondaryDecorationType,
       cursorPosition.line
     );
   }
 
   function setDecorations(highlights, decorationType, cursorLine) {
-    const decorations: vscode.DecorationOptions[] = highlights.map(column => ({
-      range: new vscode.Range(cursorLine, column, cursorLine, column + 1)
+    const decorations: vscode.DecorationOptions[] = highlights.map(h => ({
+      range: new vscode.Range(
+        cursorLine,
+        h.position,
+        cursorLine,
+        h.position + 1
+      )
     }));
     activeEditor.setDecorations(decorationType, decorations);
   }

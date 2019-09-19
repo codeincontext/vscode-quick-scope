@@ -11,47 +11,56 @@ function extractWords(text) {
   return words;
 }
 
-function highlightWord(word, highlights, occurrences) {
+function highlightWord(
+  word,
+  occurrences,
+  direction
+): { position: number; type: "primary" | "secondary" } {
   const { text, offset } = word;
-  let highlighted = false;
+  let primary = null;
+  let secondary = null;
 
   for (let i = 0, len = text.length; i < len; i++) {
     const char = text[i];
 
-    if (!highlighted && !occurrences[char]) {
-      highlights.push(offset + i);
-      highlighted = true;
+    if ((!primary || direction === "reverse") && !occurrences[char]) {
+      primary = offset + i;
     }
+
+    if ((!secondary || direction === "reverse") && occurrences[char] === 1) {
+      secondary = offset + i;
+    }
+
     occurrences[char] = (occurrences[char] || 0) + 1;
   }
 
-  return highlighted;
+  if (primary) {
+    return {
+      position: primary,
+      type: "primary"
+    };
+  }
+  if (secondary) {
+    return {
+      position: secondary,
+      type: "secondary"
+    };
+  }
 }
 
 export default function getHighlights(
-  text: string
-): { primary: number[]; secondary: number[] } {
+  text: string,
+  direction: "forward" | "reverse"
+): { position: number; type: "primary" | "secondary" }[] {
   const words = extractWords(text).filter(({ offset }) => offset > 0);
 
   // Whether a character is already being used
-  const primaryOccurrences = {};
-  const primaryHighlights = [];
+  const occurrences = {};
 
-  const unHighlightedWords = words.filter(word => {
-    const didHighlight = highlightWord(
-      word,
-      primaryHighlights,
-      primaryOccurrences
-    );
-    return !didHighlight;
-  });
-
-  const secondaryOccurrences = {};
-  const secondaryHighlights = [];
-
-  unHighlightedWords.forEach(word =>
-    highlightWord(word, secondaryHighlights, secondaryOccurrences)
+  // Primary highlights
+  const highlights = words.map(word =>
+    highlightWord(word, occurrences, direction)
   );
 
-  return { primary: primaryHighlights, secondary: secondaryHighlights };
+  return highlights.filter(h => h);
 }

@@ -14,18 +14,24 @@ import getHighlights from "../matcher";
 
 function renderHighlights(text, highlights) {
   return text.split("").reduce((acc, char, i) => {
-    if (highlights.primary.includes(i)) {
+    const highlight = highlights.find(h => h.position === i);
+
+    if (highlight && highlight.type === "primary") {
       char = `[${char}]`;
     }
-    if (highlights.secondary.includes(i)) {
+    if (highlight && highlight.type === "secondary") {
       char = `<${char}>`;
     }
     return `${acc}${char}`;
   });
 }
 
-function assertHighlights(input, output) {
-  const highlights = getHighlights(input);
+function assertHighlights(
+  input,
+  output,
+  direction: "forward" | "reverse" = "forward"
+) {
+  const highlights = getHighlights(input, direction);
   assert.equal(renderHighlights(input, highlights), output);
 }
 
@@ -62,4 +68,6 @@ suite("Extension Tests", () => {
       "axxx [b]xxx [c]xxx [d]xxx [e]xxx [f]xxx"
     );
   });
+
+  // TODO: tests for reverse
 });
