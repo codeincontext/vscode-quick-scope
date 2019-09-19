@@ -1,5 +1,6 @@
 // "use strict";
 import * as vscode from "vscode";
+import getHighlights from "./matcher";
 
 const primaryDecorationType = vscode.window.createTextEditorDecorationType({
   backgroundColor: new vscode.ThemeColor("editor.selectionBackground")
@@ -52,15 +53,26 @@ export function activate(context: vscode.ExtensionContext) {
     const line = getLine(activeEditor, cursorPosition);
 
     const beforeText = line.slice(0, cursorColumn);
-    const beforeTextReversed = beforeText.split("").reverse().join("");
+    const beforeTextReversed = beforeText
+      .split("")
+      .reverse()
+      .join("");
     const beforeHighlights = getHighlights(beforeTextReversed);
-    beforeHighlights.primary = beforeHighlights.primary.map(index => cursorColumn - index - 1)
-    beforeHighlights.secondary = beforeHighlights.secondary.map(index => cursorColumn - index - 1)
+    beforeHighlights.primary = beforeHighlights.primary.map(
+      index => cursorColumn - index - 1
+    );
+    beforeHighlights.secondary = beforeHighlights.secondary.map(
+      index => cursorColumn - index - 1
+    );
 
     const afterText = line.slice(cursorPosition.character + 1);
     const afterHighlights = getHighlights(afterText);
-    afterHighlights.primary = afterHighlights.primary.map(index => cursorColumn + index + 1)
-    afterHighlights.secondary = afterHighlights.secondary.map(index => cursorColumn + index + 1)
+    afterHighlights.primary = afterHighlights.primary.map(
+      index => cursorColumn + index + 1
+    );
+    afterHighlights.secondary = afterHighlights.secondary.map(
+      index => cursorColumn + index + 1
+    );
 
     setDecorations(
       [...beforeHighlights.primary, ...afterHighlights.primary],
@@ -72,60 +84,6 @@ export function activate(context: vscode.ExtensionContext) {
       secondaryDecorationType,
       cursorPosition.line
     );
-  }
-
-  const WORD_REGEX = /\w+/g;
-  function extractWords(text) {
-    const words = [];
-    let match;
-    while ((match = WORD_REGEX.exec(text))) {
-      words.push({
-        text: match[0],
-        offset: match.index
-      });
-    }
-    return words;
-  }
-
-  function getHighlights(text: string) {
-    let words = extractWords(text);
-
-    let occurrences = {};
-    const primaryHighlights = [];
-
-    words = words.map(({ text, offset }) => {
-      let hasHighlight = false;
-      for (let i = 0, len = text.length; i < len; i++) {
-        const char = text[i];
-        const currentWord = offset === 0;
-
-        if (!hasHighlight && !occurrences[char] && !currentWord) {
-          primaryHighlights.push(offset + i);
-          hasHighlight = true;
-        }
-        occurrences[char] = (occurrences[char] || 0) + 1;
-      }
-
-      return { text, offset, hasHighlight };
-    });
-
-    occurrences = {};
-    const secondaryHighlights = [];
-
-    words.forEach(({text, offset, hasHighlight}) => {
-      for (let i = 0, len = text.length; i < len; i++) {
-        const char = text[i];
-        const currentWord = offset === 0;
-
-        if (!hasHighlight && occurrences[char] === 1 && !currentWord) {
-          secondaryHighlights.push(offset + i);
-          hasHighlight = true;
-        }
-        occurrences[char] = (occurrences[char] || 0) + 1;
-      }
-    });
-
-    return { primary: primaryHighlights, secondary: secondaryHighlights };
   }
 
   function setDecorations(highlights, decorationType, cursorLine) {
