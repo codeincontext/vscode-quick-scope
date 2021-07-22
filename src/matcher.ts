@@ -52,10 +52,12 @@ export default function getHighlights(
   text: string,
   direction: "forward" | "reverse"
 ): { position: number; type: "primary" | "secondary" }[] {
-  const words = extractWords(text).filter(({ offset }) => offset > 0);
-
+  const words = extractWords(text);
+  const firstWord = words.shift().text;
   // Whether a character is already being used
   const occurrences = {};
+    
+  firstWord.split('').forEach(char => occurrences[char] = (occurrences[char] || 0) + 1);
 
   // Primary highlights
   const highlights = words.map(word =>
