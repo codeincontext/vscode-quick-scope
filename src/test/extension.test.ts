@@ -68,6 +68,14 @@ suite("Extension Tests", () => {
       "axxx [b]xxx [c]xxx [d]xxx [e]xxx [f]xxx"
     );
   });
+  
+    
+  test("Includes current word in character occurences", () => {
+    assertHighlights(
+      "abxx bxxx cxxx dxxx exxx fxxx",
+      "abxx <b>xxx [c]xxx [d]xxx [e]xxx [f]xxx"
+    );
+  });
 
   // TODO: tests for reverse
 });
